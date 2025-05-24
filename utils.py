@@ -1,8 +1,3 @@
-import os
-import sys
-lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'lib'))
-sys.path.insert(0, lib_path)
-
 from pyspark.sql.functions import col, sum as spark_sum, when, collect_set
 from pyspark.sql import SparkSession
 
