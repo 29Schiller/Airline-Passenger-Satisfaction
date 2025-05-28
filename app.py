@@ -1,7 +1,3 @@
-import os
-import sys
-lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'lib'))
-sys.path.insert(0, lib_path)
 
 import streamlit as st
 import pandas as pd
@@ -11,7 +7,7 @@ from pyspark.sql.types import StringType, ArrayType
 from pyspark.sql.functions import udf
 from pyspark.ml.tuning import CrossValidatorModel
 from Model.data_processing import preprocess_data, load_data, CustomLabelIndexer, ScaledFeatureExpander
-from Model.utils import count_rowncol, count_null, unique_values, variable_type
+from utils import count_rowncol, count_null, unique_values, variable_type
 
 def main():
     st.title("🛬 Predict Airline Satisfaction")
