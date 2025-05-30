@@ -1,75 +1,48 @@
-
 import streamlit as st
-import pandas as pd
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
-from pyspark.sql.types import StringType, ArrayType
-from pyspark.sql.functions import udf
-from pyspark.ml.tuning import CrossValidatorModel
-from Model.data_processing import preprocess_data, load_data, CustomLabelIndexer, ScaledFeatureExpander
-from utils import count_rowncol, count_null, unique_values, variable_type
+from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
+from pyspark.ml import Transformer
+from pyspark.ml.feature import VectorAssembler, StandardScaler
+from pyspark.sql.functions import col, udf
+from pyspark.sql.types import FloatType, ArrayType
+from pyspark.ml.param.shared import Param, Params, TypeConverters
 
-def main():
-    st.title("🛬 Predict Airline Satisfaction")
-    
-    # Initialize Spark
-    spark = SparkSession.builder.appName("AirlinePassengerSatisfaction").config("spark.sql.execution.arrow.pyspark.enabled", "true").getOrCreate()
-    
-    uploaded_file = st.file_uploader("Upload a CSV file", type="csv")
-    
-    if uploaded_file is not None:
-        pd_df = pd.read_csv(uploaded_file)
-        spark_df = spark.createDataFrame(pd_df)
-        
-        # Drop unnecessary columns
-        for col_name in ["_c0", "id"]:
-            if col_name in spark_df.columns:
-                spark_df = spark_df.drop(col_name)
-        
-        # Preprocess data
-        _, processed_df, pipeline_model = preprocess_data(spark, spark_df, spark_df)
-        
-        # Load pre-trained model
-        model = CrossValidatorModel.load("models/full_streamlit_pipeline")
-        predictions = model.transform(processed_df).select("satisfaction_indexed", "prediction", "probability")
-        
-        st.success("✅ Predictions generated!")
-        
-        # Round probabilities
-        @udf(ArrayType(StringType()))
-        def round_probability(vec):
-            if vec is not None:
-                return [f"{float(x):.3f}" for x in vec]
-            return None
-        
-        predictions = predictions.withColumn("probability_rounded", round_probability(col("probability")))
-        df_clean = predictions.drop("probability").withColumnRenamed("probability_rounded", "probability")
-        
-        df_pd = df_clean.toPandas()
-        st.dataframe(df_pd)
-        
-        # Pie chart
-        st.title("Pie Chart Of Prediction Accuracy")
-        import matplotlib.pyplot as plt
-        
-        df_pd["correct"] = df_pd["satisfaction_indexed"] == df_pd["prediction"]
-        correct_count = df_pd["correct"].sum()
-        incorrect_count = len(df_pd) - correct_count
-        
-        labels = ['Correct', 'Incorrect']
-        sizes = [correct_count, incorrect_count]
-        colors = ['#1f77b4', '#ff7f0e']
-        explode = (0.05, 0)
-        
-        fig, ax = plt.subplots()
-        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors, explode=explode)
-        ax.axis('equal')
-        st.pyplot(fig)
-        
-        csv = df_pd.to_csv(index=False).encode("utf-8")
-        st.download_button("📥 Download Results", data=csv, file_name="predictions.csv", mime="text/csv")
-    
-    spark.stop()
+# Start Spark
+spark = SparkSession.builder.appName("CSV Prediction").getOrCreate()
 
-if __name__ == "__main__":
-    main()
+# Custom Transformer
+class ScaledFeatureExpander(Transformer, DefaultParamsReadable, DefaultParamsWritable):
+    def __init__(self, inputCols=None, outputPrefix="_scaled"):
+        super(ScaledFeatureExpander, self).__init__()
+        self.inputCols = Param(self, "inputCols", "Input columns", typeConverter=TypeConverters.toListString)
+        self.outputPrefix = Param(self, "outputPrefix", "Prefix for scaled columns", typeConverter=TypeConverters.toString)
+        self._setDefault(outputPrefix="_scaled")
+        if inputCols is not None:
+            self._set(inputCols=inputCols)
+        self._set(outputPrefix=outputPrefix)
+
+    def _transform(self, df):
+        inputCols = self.getOrDefault(self.inputCols)
+        outputPrefix = self.getOrDefault(self.outputPrefix)
+        assembler = VectorAssembler(inputCols=inputCols, outputCol="numeric_features")
+        df = assembler.transform(df)
+        scaler = StandardScaler(inputCol="numeric_features", outputCol="scaled_features")
+        scaler_model = scaler.fit(df)
+        df = scaler_model.transform(df)
+        def unpack_vector(v):
+            return v.toArray().tolist() if v is not None else [None]*len(inputCols)
+        unpack_udf = udf(unpack_vector, ArrayType(FloatType()))
+        df = df.withColumn("scaled_array", unpack_udf(col("scaled_features")))
+        for i, col_name in enumerate(inputCols):
+            df = df.withColumn(col_name + outputPrefix, col("scaled_array").getItem(i))
+        return df.drop("numeric_features", "scaled_features", "scaled_array", *inputCols)
+
+# Define the pages
+demo_1 = st.Page("/content/page1.py", title="Manual Input Prediction", icon="📊")
+demo_2 = st.Page("/content/page2.py", title="Upload CSV Prediction", icon="📈")
+
+# Set up navigation
+pg = st.navigation([demo_1, demo_2])
+
+# Run the selected page
+pg.run()
