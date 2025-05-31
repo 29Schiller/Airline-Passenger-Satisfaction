@@ -36,12 +36,12 @@ This chapter outlines the methodological approach undertaken in developing a fli
 
 ## 2. **Team Members** :couplekiss_man_man:
 
-| Order |   Name  |  ID |  Github account |  Roles | Contribution (%) |                   
-| :---: |:---------------------:|:-----------:|:----------------------------------------------------:| :----------------------------------------------------------------: |:----------------:|
-|   1   |    Nguyễn Minh Đạt    | ITDSIU22166 |  [Banh-Vinh-Thuan](https://github.com/Banh-Vinh-Thuan) | Front-end | 14.3% |
-|   2   |   Nguyễn Dư Nhân    | ITITIU21311 |  [phuongthanhkkk](https://github.com/phuongthanhkkk) | Database  |14.3% |
-|   3   | Phạm Hải Phú  | ITITIU21227 |  [Khoakhoa2812](https://github.com/Khoakhoa2812)  | Back-end |14.3% |
-|   4   | Dương Ngọc Phương Anh | ITITIU21287 |  [npkyphuong04](https://github.com/npkyphuong04)| Back-end |14.3% |
+| Order |   Name  |  ID |  Roles | Contribution (%) |                   
+| :---: |:---------------------:|:-----------:| :----------------------------------------------------------------: |:----------------:|
+|   1   |    Nguyễn Minh Đạt    | ITDSIU22166 | Front-end | 14.3% |
+|   2   |   Nguyễn Dư Nhân    | ITDSIU22140 | App  |14.3% |
+|   3   | Phạm Hải Phú  | ITDSIU22179 | Model |14.3% |
+|   4   | Dương Ngọc Phương Anh | ITDSIU22135 | Model |14.3% |
 
 ## 3. **Features** ✨
 - Manual Input Prediction : Designed for end-users, this interface allows users to manually input key passenger and flight-related information (e.g., age, travel class, service ratings). Upon submission, the system processes the data and immediately returns a prediction indicating whether the
