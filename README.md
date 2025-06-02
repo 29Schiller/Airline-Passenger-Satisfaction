@@ -38,10 +38,10 @@ This chapter outlines the methodological approach undertaken in developing a fli
 
 | Order |   Name  |  ID |  Roles | Contribution (%) |                   
 | :---: |:---------------------:|:-----------:| :----------------------------------------------------------------: |:----------------:|
-|   1   |    Nguyễn Minh Đạt    | ITDSIU22166 | Front-end | 14.3% |
-|   2   |   Nguyễn Dư Nhân    | ITDSIU22140 | App  |14.3% |
-|   3   | Phạm Hải Phú  | ITDSIU22179 | Model |14.3% |
-|   4   | Dương Ngọc Phương Anh | ITDSIU22135 | Model |14.3% |
+|   1   |    Nguyễn Minh Đạt    | ITDSIU22166 | Front-end | 25% |
+|   2   |   Nguyễn Dư Nhân    | ITDSIU22140 | App  |25% |
+|   3   | Phạm Hải Phú  | ITDSIU22179 | Model |25% |
+|   4   | Dương Ngọc Phương Anh | ITDSIU22135 | Model |25% |
 
 ## 3. **Features** ✨
 - Manual Input Prediction : Designed for end-users, this interface allows users to manually input key passenger and flight-related information (e.g., age, travel class, service ratings). Upon submission, the system processes the data and immediately returns a prediction indicating whether the
